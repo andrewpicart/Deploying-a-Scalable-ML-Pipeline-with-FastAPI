@@ -1,28 +1,65 @@
 import pytest
 # TODO: add necessary import
+import numpy as np
+import pandas as pd
+from sklearn.ensemble import RandomForestClassifier
+from ml.model import train_model, compute_model_metrics, inference
 
 # TODO: implement the first test. Change the function name and input as needed
-def test_one():
+@pytest.fixture
+def data():
     """
-    # add description for the first test
+    Creates a simple dataset for testing.
     """
-    # Your code here
-    pass
+    X = np.array([[1, 2], [3, 4], [5, 6], [7, 8]])
+    y = np.array([0, 0, 1, 1])
+    return X, y
+
+def test_train_model(data):
+    """
+    Test that the train_model function returns a RandomForestClassifier.
+    """
+    X, y = data
+    model = train_model(X, y)
+    
+    # Check if the model is of the expected type
+    assert isinstance(model, RandomForestClassifier)
+    
+    # Check if the model is actually fitted (has the classes_ attribute)
+    assert hasattr(model, "classes_")
 
 
-# TODO: implement the second test. Change the function name and input as needed
-def test_two():
+def test_inference(data):
     """
-    # add description for the second test
+    Test that inference returns predictions of the correct shape and type.
     """
-    # Your code here
-    pass
+    X, y = data
+    model = train_model(X, y)
+    preds = inference(model, X)
+    
+    # Check that predictions is a numpy array
+    assert isinstance(preds, np.ndarray)
+    
+    # Check that we get one prediction per input row
+    assert len(preds) == len(X)
 
 
-# TODO: implement the third test. Change the function name and input as needed
-def test_three():
+def test_compute_model_metrics():
     """
-    # add description for the third test
+    Test that compute_model_metrics returns three float values (precision, recall, fbeta).
     """
-    # Your code here
-    pass
+    # Create dummy actuals and predictions
+    y_true = np.array([0, 1, 1, 0])
+    y_pred = np.array([0, 1, 0, 0])
+    
+    precision, recall, fbeta = compute_model_metrics(y_true, y_pred)
+    
+    # Check types
+    assert isinstance(precision, float)
+    assert isinstance(recall, float)
+    assert isinstance(fbeta, float)
+    
+    # Check ranges (metrics should be between 0 and 1)
+    assert 0 <= precision <= 1
+    assert 0 <= recall <= 1
+    assert 0 <= fbeta <= 1
